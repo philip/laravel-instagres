@@ -15,3 +15,5 @@ All notable changes to `laravel-instagres` will be documented in this file.
 - Support for default and named database connections
 - Comprehensive test suite with Pest
 - Full integration with `philip/instagres` SDK
+- Laravel 10.x, 11.x, and 12.x support
+- PHP 8.2, 8.3, and 8.4 support

@@ -12,6 +12,7 @@ Laravel integration for [Neon Instagres](https://neon.com/docs/reference/neon-la
 - ⏱️ **72-hour lifespan** - Claimable for permanent use
 - 🔧 **Zero configuration** - Works immediately after installation
 - 🧪 **Perfect for testing** - Ideal for CI/CD pipelines and temporary environments
+- 📦 **Laravel 10-12** - Full support for Laravel 10.x, 11.x, and 12.x
 
 ## Installation
 
