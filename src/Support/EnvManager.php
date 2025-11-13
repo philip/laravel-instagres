@@ -55,15 +55,19 @@ class EnvManager
         // Escape special characters in value for shell usage
         $escapedValue = $this->escapeValue($value);
 
-        // Check if the key already exists
-        $pattern = "/^{$key}=.*/m";
+        // Check if the key already exists (active or commented)
+        $activePattern = "/^{$key}=.*/m";
+        $commentedPattern = "/^#\s*{$key}=.*/m";
 
-        if (preg_match($pattern, $envContent)) {
-            // Update existing key
-            $newContent = preg_replace($pattern, "{$key}={$escapedValue}", $envContent);
+        if (preg_match($activePattern, $envContent)) {
+            // Update existing active key
+            $newContent = preg_replace($activePattern, "{$key}={$escapedValue}", $envContent);
+        } elseif (preg_match($commentedPattern, $envContent)) {
+            // Replace commented key with active key
+            $newContent = preg_replace($commentedPattern, "{$key}={$escapedValue}", $envContent);
         } else {
             // Add new key at the end
-            $newContent = rtrim($envContent)."\n{$key}={$escapedValue}\n";
+            $newContent = rtrim($envContent) . "\n{$key}={$escapedValue}\n";
         }
 
         return file_put_contents($this->envPath, $newContent) !== false;

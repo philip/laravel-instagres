@@ -46,9 +46,9 @@ php artisan instagres:create --set-default
 
 This will:
 - Create a new Instagres database
-- Update `DATABASE_URL` in your `.env` file
+- Update database connection variables in your `.env` file
 - Display connection details and claim URL
-- Save database ID for future reference
+- Save claim URL for future reference
 
 ### Alternative: Named Connection
 
@@ -87,8 +87,11 @@ php artisan instagres:create [options]
 ```
 
 **Options:**
-- `--set-default` - Set this database as the default Laravel database connection (updates `DATABASE_URL`)
+- `--set-default` - Set this database as the default Laravel database connection
+- `--url` - Use `DATABASE_URL` instead of individual `DB_*` variables (only with `--set-default`)
 - `--save-as=NAME` - Save connection with a custom prefix (e.g., `STAGING` creates `STAGING_CONNECTION_STRING`)
+
+> **Note:** By default, `--set-default` uses Laravel's standard `DB_CONNECTION`, `DB_HOST`, `DB_PORT`, etc. variables. Add `--url` to use `DATABASE_URL` instead (common in production/Heroku/Forge environments).
 
 **Examples:**
 
@@ -96,8 +99,11 @@ php artisan instagres:create [options]
 # Create database and display info (manual configuration)
 php artisan instagres:create
 
-# Create and set as default connection
+# Create and set as default connection (using DB_* variables)
 php artisan instagres:create --set-default
+
+# Create and set as default using DATABASE_URL
+php artisan instagres:create --set-default --url
 
 # Create and save as named connection
 php artisan instagres:create --save-as=testing
@@ -195,18 +201,37 @@ return [
 
 After creating a database with the Artisan command, these variables are automatically added to your `.env`:
 
+**Using `--set-default` (without `--url`):**
 ```env
-# Default connection (if --set-default used)
-DATABASE_URL=postgresql://user:pass@host/db?sslmode=require
+DB_CONNECTION=pgsql
+DB_HOST=ep-test-123.us-east-1.aws.neon.tech
+DB_PORT=5432
+DB_DATABASE=neondb
+DB_USERNAME=username
+DB_PASSWORD=password
+```
 
-# Claim URL (always saved when using --set-default or --save-as)
+**Using `--set-default --url`:**
+```env
+DATABASE_URL=postgresql://user:pass@host:5432/db?sslmode=require
+```
+
+**Always saved:**
+```env
+# Claim URL (saved with any option)
 INSTAGRES_CLAIM_URL=https://neon.new/database/123e4567-e89b-12d3-a456-426614174000
+```
 
-# Named connection (if --save-as=NAME used, e.g., --save-as=staging)
+**Using `--save-as=staging`:**
+```env
+# Named connection
 STAGING_CONNECTION_STRING=postgresql://user:pass@host/db?sslmode=require
 ```
 
-**Note:** The claim URL variable name can be customized in `config/instagres.php` if needed. Connection strings use Laravel's standard `DATABASE_URL` or a custom prefix of your choice.
+**Note:** 
+- **DB_* variables** (default) work great for local development
+- **DATABASE_URL** is preferred in production environments (Heroku, Forge, etc.)
+- The claim URL variable name can be customized in `config/instagres.php`
 
 ## Common Workflows
 

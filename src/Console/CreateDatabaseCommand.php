@@ -11,6 +11,7 @@ class CreateDatabaseCommand extends Command
 {
     protected $signature = 'instagres:create
                             {--set-default : Set this database as the default Laravel database connection}
+                            {--url : Use DATABASE_URL instead of DB_* variables (when using --set-default)}
                             {--save-as= : Save connection string with a custom prefix (e.g., "STAGING" creates STAGING_CONNECTION_STRING)}';
 
     protected $description = 'Create a new instant Neon PostgreSQL database';
@@ -85,8 +86,28 @@ class CreateDatabaseCommand extends Command
 
         // Determine which variables to set based on options
         if ($this->option('set-default')) {
-            $variables['DATABASE_URL'] = $database['connection_string'];
-            $this->line('  • Set DATABASE_URL (default connection)');
+            if ($this->option('url')) {
+                // Use DATABASE_URL (common in production/Heroku/Forge)
+                $variables['DATABASE_URL'] = $database['connection_string'];
+                $this->line('  • Set DATABASE_URL');
+            } else {
+                // Parse connection string to set individual DB_* variables (Laravel default)
+                $parsed = Instagres::parseConnection($database['connection_string']);
+                
+                $variables['DB_CONNECTION'] = 'pgsql';
+                $variables['DB_HOST'] = $parsed['host'];
+                $variables['DB_PORT'] = $parsed['port'];
+                $variables['DB_DATABASE'] = $parsed['database'];
+                $variables['DB_USERNAME'] = $parsed['user'];
+                $variables['DB_PASSWORD'] = $parsed['password'];
+                
+                $this->line('  • Set DB_CONNECTION=pgsql');
+                $this->line('  • Set DB_HOST=' . $parsed['host']);
+                $this->line('  • Set DB_PORT=' . $parsed['port']);
+                $this->line('  • Set DB_DATABASE=' . $parsed['database']);
+                $this->line('  • Set DB_USERNAME=' . $parsed['user']);
+                $this->line('  • Set DB_PASSWORD (hidden)');
+            }
         }
 
         if ($saveAs = $this->option('save-as')) {
