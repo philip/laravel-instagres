@@ -93,19 +93,19 @@ class CreateDatabaseCommand extends Command
             } else {
                 // Parse connection string to set individual DB_* variables (Laravel default)
                 $parsed = Instagres::parseConnection($database['connection_string']);
-                
+
                 $variables['DB_CONNECTION'] = 'pgsql';
                 $variables['DB_HOST'] = $parsed['host'];
                 $variables['DB_PORT'] = $parsed['port'];
                 $variables['DB_DATABASE'] = $parsed['database'];
                 $variables['DB_USERNAME'] = $parsed['user'];
                 $variables['DB_PASSWORD'] = $parsed['password'];
-                
+
                 $this->line('  • Set DB_CONNECTION=pgsql');
-                $this->line('  • Set DB_HOST=' . $parsed['host']);
-                $this->line('  • Set DB_PORT=' . $parsed['port']);
-                $this->line('  • Set DB_DATABASE=' . $parsed['database']);
-                $this->line('  • Set DB_USERNAME=' . $parsed['user']);
+                $this->line('  • Set DB_HOST='.$parsed['host']);
+                $this->line('  • Set DB_PORT='.$parsed['port']);
+                $this->line('  • Set DB_DATABASE='.$parsed['database']);
+                $this->line('  • Set DB_USERNAME='.$parsed['user']);
                 $this->line('  • Set DB_PASSWORD (hidden)');
             }
         }

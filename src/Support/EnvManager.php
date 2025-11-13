@@ -67,7 +67,7 @@ class EnvManager
             $newContent = preg_replace($commentedPattern, "{$key}={$escapedValue}", $envContent);
         } else {
             // Add new key at the end
-            $newContent = rtrim($envContent) . "\n{$key}={$escapedValue}\n";
+            $newContent = rtrim($envContent)."\n{$key}={$escapedValue}\n";
         }
 
         return file_put_contents($this->envPath, $newContent) !== false;
