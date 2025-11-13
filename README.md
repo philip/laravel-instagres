@@ -1,68 +1,283 @@
-# :package_description
+# Laravel Instagres
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/:vendor_slug/:package_slug.svg?style=flat-square)](https://packagist.org/packages/:vendor_slug/:package_slug)
-[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/:vendor_slug/:package_slug/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/:vendor_slug/:package_slug/actions?query=workflow%3Arun-tests+branch%3Amain)
-[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/:vendor_slug/:package_slug/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/:vendor_slug/:package_slug/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
-[![Total Downloads](https://img.shields.io/packagist/dt/:vendor_slug/:package_slug.svg?style=flat-square)](https://packagist.org/packages/:vendor_slug/:package_slug)
-<!--delete-->
----
-This repo can be used to scaffold a Laravel package. Follow these steps to get started:
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/philip/laravel-instagres.svg?style=flat-square)](https://packagist.org/packages/philip/laravel-instagres)
+[![Total Downloads](https://img.shields.io/packagist/dt/philip/laravel-instagres.svg?style=flat-square)](https://packagist.org/packages/philip/laravel-instagres)
 
-1. Press the "Use this template" button at the top of this repo to create a new repo with the contents of this skeleton.
-2. Run "php ./configure.php" to run a script that will replace all placeholders throughout all the files.
-3. Have fun creating your package.
-4. If you need help creating a package, consider picking up our <a href="https://laravelpackage.training">Laravel Package Training</a> video course.
----
-<!--/delete-->
-This is where your description should go. Limit it to a paragraph or two. Consider adding a small example.
+Laravel integration for [Neon Instagres](https://neon.com/docs/reference/neon-launchpad) - create instant, claimable PostgreSQL databases with zero configuration. Perfect for development, testing, CI/CD, and quick prototyping.
 
-## Support us
+## Features
 
-[<img src="https://github-ads.s3.eu-central-1.amazonaws.com/:package_name.jpg?t=1" width="419px" />](https://spatie.be/github-ad-click/:package_name)
-
-We invest a lot of resources into creating [best in class open source packages](https://spatie.be/open-source). You can support us by [buying one of our paid products](https://spatie.be/open-source/support-us).
-
-We highly appreciate you sending us a postcard from your hometown, mentioning which of our package(s) you are using. You'll find our address on [our contact page](https://spatie.be/about-us). We publish all received postcards on [our virtual postcard wall](https://spatie.be/open-source/postcards).
+- 🚀 **Instant databases** - PostgreSQL databases in seconds, no account needed
+- 🎨 **Laravel-native** - Artisan commands, facades, and automatic .env management
+- ⏱️ **72-hour lifespan** - Claimable for permanent use
+- 🔧 **Zero configuration** - Works immediately after installation
+- 🧪 **Perfect for testing** - Ideal for CI/CD pipelines and temporary environments
 
 ## Installation
 
-You can install the package via composer:
+Install the package via Composer:
 
 ```bash
-composer require :vendor_slug/:package_slug
+composer require philip/laravel-instagres
 ```
 
-You can publish and run the migrations with:
+The package will automatically register itself via Laravel's package discovery.
+
+### Publish Configuration (Optional)
+
+If you want to customize the package configuration:
 
 ```bash
-php artisan vendor:publish --tag=":package_slug-migrations"
-php artisan migrate
+php artisan vendor:publish --tag="instagres-config"
 ```
 
-You can publish the config file with:
+This will create a `config/instagres.php` file where you can customize settings like the referrer name and environment variable names.
+
+## Quick Start
+
+### Using Artisan Commands
+
+Create a new database and set it as your default connection:
 
 ```bash
-php artisan vendor:publish --tag=":package_slug-config"
+php artisan instagres:create --set-default
 ```
 
-This is the contents of the published config file:
+This will:
+- Create a new Instagres database
+- Update `DATABASE_URL` in your `.env` file
+- Display connection details and claim URL
+- Save database ID for future reference
 
-```php
-return [
-];
-```
+### Alternative: Named Connection
 
-Optionally, you can publish the views using
+Save the database with a custom name for multiple databases:
 
 ```bash
-php artisan vendor:publish --tag=":package_slug-views"
+php artisan instagres:create --save-as=staging
+```
+
+This creates `STAGING_CONNECTION_STRING` in your `.env` file.
+
+### Get Claim URL
+
+Display your stored claim URL (or generate one from a database ID):
+
+```bash
+php artisan instagres:claim-url
+```
+
+Or generate a claim URL from a specific database ID:
+
+```bash
+php artisan instagres:claim-url --db-id=your-uuid-here
 ```
 
 ## Usage
 
+### Artisan Commands
+
+#### `instagres:create`
+
+Create a new instant PostgreSQL database.
+
+```bash
+php artisan instagres:create [options]
+```
+
+**Options:**
+- `--set-default` - Set this database as the default Laravel database connection (updates `DATABASE_URL`)
+- `--save-as=NAME` - Save connection with a custom prefix (e.g., `STAGING` creates `STAGING_CONNECTION_STRING`)
+
+**Examples:**
+
+```bash
+# Create database and display info (manual configuration)
+php artisan instagres:create
+
+# Create and set as default connection
+php artisan instagres:create --set-default
+
+# Create and save as named connection
+php artisan instagres:create --save-as=testing
+
+# Create and save both ways
+php artisan instagres:create --set-default --save-as=backup
+```
+
+#### `instagres:claim-url`
+
+Display your stored claim URL or generate one from a database ID.
+
+```bash
+php artisan instagres:claim-url [options]
+```
+
+**Options:**
+- `--db-id=UUID` - Generate claim URL from a specific database ID (reads from `INSTAGRES_CLAIM_URL` in `.env` if not provided)
+
+**Examples:**
+
+```bash
+# Display claim URL from .env
+php artisan instagres:claim-url
+
+# Generate claim URL from a database ID
+php artisan instagres:claim-url --db-id=123e4567-e89b-12d3-a456-426614174000
+```
+
+### Facade Usage
+
+You can also use the `Instagres` facade programmatically:
+
 ```php
-$variable = new VendorName\Skeleton();
-echo $variable->echoPhrase('Hello, VendorName!');
+use Philip\LaravelInstagres\Facades\Instagres;
+
+// Create a database
+$database = Instagres::create();
+
+// Access database information
+echo $database['connection_string'];
+echo $database['claim_url'];
+echo $database['expires_at'];
+
+// Get claim URL for a database ID
+$claimUrl = Instagres::claimUrl($dbId);
+
+// Parse a connection string
+$parsed = Instagres::parseConnection($database['connection_string']);
+echo $parsed['host'];
+echo $parsed['database'];
+echo $parsed['user'];
+echo $parsed['password'];
+echo $parsed['dsn']; // Ready for PDO
+
+// Generate a UUID
+$uuid = Instagres::generateUuid();
+```
+
+### Using with Laravel Database
+
+Once you've created a database and saved it with `--set-default`, you can use it like any Laravel database:
+
+```php
+use Illuminate\Support\Facades\DB;
+
+// Run migrations
+php artisan migrate
+
+// Query the database
+$users = DB::table('users')->get();
+
+// Use Eloquent
+User::create(['name' => 'John Doe']);
+```
+
+## Configuration
+
+The `config/instagres.php` file contains the following options:
+
+```php
+return [
+    // Referrer identifier (helps track where databases are created from)
+    'referrer' => env('INSTAGRES_REFERRER', 'laravel-instagres'),
+
+    // Auto-configure Laravel database connection (future feature)
+    'auto_configure' => env('INSTAGRES_AUTO_CONFIGURE', false),
+
+    // Customize the environment variable name used to store the claim URL
+    'claim_url_var' => 'INSTAGRES_CLAIM_URL',
+];
+```
+
+## Environment Variables
+
+After creating a database with the Artisan command, these variables are automatically added to your `.env`:
+
+```env
+# Default connection (if --set-default used)
+DATABASE_URL=postgresql://user:pass@host/db?sslmode=require
+
+# Claim URL (always saved when using --set-default or --save-as)
+INSTAGRES_CLAIM_URL=https://neon.new/database/123e4567-e89b-12d3-a456-426614174000
+
+# Named connection (if --save-as=NAME used, e.g., --save-as=staging)
+STAGING_CONNECTION_STRING=postgresql://user:pass@host/db?sslmode=require
+```
+
+**Note:** The claim URL variable name can be customized in `config/instagres.php` if needed. Connection strings use Laravel's standard `DATABASE_URL` or a custom prefix of your choice.
+
+## Common Workflows
+
+### Development Environment Setup
+
+```bash
+# Create a fresh database for local development
+php artisan instagres:create --set-default
+
+# Run migrations
+php artisan migrate
+
+# Seed data
+php artisan db:seed
+```
+
+### CI/CD Pipeline
+
+```bash
+# Create temporary test database
+php artisan instagres:create --set-default
+
+# Run tests
+php artisan test
+
+# Database automatically expires after 72 hours (no cleanup needed)
+```
+
+### Multiple Environments
+
+```bash
+# Create different databases for different purposes
+php artisan instagres:create --save-as=development --set-default
+php artisan instagres:create --save-as=staging
+php artisan instagres:create --save-as=testing
+```
+
+### Claiming Your Database
+
+```bash
+# Get the claim URL
+php artisan instagres:claim-url
+
+# Visit the URL in your browser
+# Sign in to Neon (or create account)
+# Click to claim the database
+# Database becomes permanent in your Neon account
+```
+
+## Database Details
+
+- **Provider**: Neon Serverless PostgreSQL
+- **Region**: AWS eu-central-1
+- **PostgreSQL Version**: 17
+- **Plan**: Neon Free tier
+- **Lifespan**: 72 hours (claimable for permanent use)
+- **Connection**: SSL required
+
+## Error Handling
+
+The package throws exceptions that extend `Philip\Instagres\Exception\InstagresException`:
+
+```php
+use Philip\Instagres\Exception\InstagresException;
+use Philip\LaravelInstagres\Facades\Instagres;
+
+try {
+    $database = Instagres::create();
+} catch (InstagresException $e) {
+    // Handle network errors, API failures, etc.
+    Log::error('Failed to create database: ' . $e->getMessage());
+}
 ```
 
 ## Testing
@@ -71,21 +286,36 @@ echo $variable->echoPhrase('Hello, VendorName!');
 composer test
 ```
 
+## Use Cases
+
+- 🧪 **CI/CD Pipelines** - Temporary databases for automated testing
+- 💻 **Local Development** - Quick database setup without Docker
+- 🎓 **Learning & Tutorials** - No-hassle database for demos
+- 🚀 **Prototyping** - Rapid application development
+- 🔬 **Testing** - Isolated test databases
+- 📊 **Data Migration Testing** - Safe environment for migration testing
+
+## Links
+
+- **Core SDK**: [philip/instagres](https://github.com/philip/instagres-php)
+- **Neon Documentation**: [Instagres (Launchpad)](https://neon.com/docs/reference/neon-launchpad)
+- **Neon Website**: [neon.com](https://neon.com)
+
 ## Changelog
 
 Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
 
 ## Contributing
 
-Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Security Vulnerabilities
 
-Please review [our security policy](../../security/policy) on how to report security vulnerabilities.
+If you discover a security vulnerability, please email philip@roshambo.org.
 
 ## Credits
 
-- [:author_name](https://github.com/:author_username)
+- [Philip Olson](https://github.com/philip)
 - [All Contributors](../../contributors)
 
 ## License
