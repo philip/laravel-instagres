@@ -1,4 +1,4 @@
-# Laravel Instagres
+# Instagres for Laravel
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/philip/laravel-instagres.svg?style=flat-square)](https://packagist.org/packages/philip/laravel-instagres)
 [![Total Downloads](https://img.shields.io/packagist/dt/philip/laravel-instagres.svg?style=flat-square)](https://packagist.org/packages/philip/laravel-instagres)
