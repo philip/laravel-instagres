@@ -44,7 +44,7 @@ class GetClaimUrlCommand extends Command
         if (! $claimUrl) {
             $this->error("{$claimUrlKey} not found in .env");
             $this->newLine();
-            
+
             if (strtolower($name) === 'default') {
                 $this->comment('Create a default connection first:');
                 $this->line('  php artisan instagres:create --set-default');
@@ -52,7 +52,7 @@ class GetClaimUrlCommand extends Command
                 $this->comment('Create a named connection first:');
                 $this->line("  php artisan instagres:create --save-as={$name}");
             }
-            
+
             $this->newLine();
             $this->comment('Or view all claim URLs:');
             $this->line('  php artisan instagres:claim-url');

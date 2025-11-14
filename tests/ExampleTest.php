@@ -81,7 +81,7 @@ it('uses laravel file facade', function () {
 });
 
 it('can format claim url connection labels', function () {
-    $command = new \Philip\LaravelInstagres\Console\GetClaimUrlCommand();
+    $command = new \Philip\LaravelInstagres\Console\GetClaimUrlCommand;
 
     // Use reflection to test protected method
     $reflection = new ReflectionClass($command);
@@ -101,7 +101,7 @@ it('handles default as a special case name', function () {
     // Test that 'default' (case-insensitive) maps to INSTAGRES_CLAIM_URL
     $testName = 'default';
     $expectedKey = config('instagres.claim_url_var', 'INSTAGRES_CLAIM_URL');
-    
+
     // Simulate the logic from showSpecificClaimUrl
     if (strtolower($testName) === 'default') {
         $claimUrlKey = $expectedKey;
@@ -109,13 +109,13 @@ it('handles default as a special case name', function () {
         $prefix = strtoupper($testName);
         $claimUrlKey = "{$prefix}_CLAIM_URL";
     }
-    
+
     expect($claimUrlKey)->toBe('INSTAGRES_CLAIM_URL');
-    
+
     // Test that other names still work as expected
     $testName2 = 'staging';
     $prefix2 = strtoupper($testName2);
     $claimUrlKey2 = "{$prefix2}_CLAIM_URL";
-    
+
     expect($claimUrlKey2)->toBe('STAGING_CLAIM_URL');
 });
