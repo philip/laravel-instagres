@@ -15,24 +15,12 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Auto Configure
+    | Default Claim URL Environment Variable
     |--------------------------------------------------------------------------
     |
-    | When enabled, the package will attempt to automatically configure
-    | your Laravel database connection when creating a new database via
-    | the Artisan command. Disable this if you prefer manual configuration.
-    |
-    */
-    'auto_configure' => env('INSTAGRES_AUTO_CONFIGURE', false),
-
-    /*
-    |--------------------------------------------------------------------------
-    | Claim URL Environment Variable
-    |--------------------------------------------------------------------------
-    |
-    | Customize the environment variable name used to store the claim URL
-    | when creating a database. The claim URL contains everything needed
-    | to claim and access your database.
+    | Customize the environment variable name used to store the default claim
+    | URL when creating a database with --set-default. Named connections
+    | (e.g., --save-as=staging) use {PREFIX}_CLAIM_URL regardless of this.
     |
     */
     'claim_url_var' => 'INSTAGRES_CLAIM_URL',

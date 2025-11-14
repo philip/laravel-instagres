@@ -202,10 +202,8 @@ return [
     // Referrer identifier (helps track where databases are created from)
     'referrer' => env('INSTAGRES_REFERRER', 'laravel-instagres'),
 
-    // Auto-configure Laravel database connection (future feature)
-    'auto_configure' => env('INSTAGRES_AUTO_CONFIGURE', false),
-
-    // Customize the environment variable name used to store the claim URL
+    // Customize the default claim URL variable name (for --set-default)
+    // Named connections (--save-as=staging) use {PREFIX}_CLAIM_URL
     'claim_url_var' => 'INSTAGRES_CLAIM_URL',
 ];
 ```
