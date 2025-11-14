@@ -2,6 +2,12 @@
 
 All notable changes to `laravel-instagres` will be documented in this file.
 
+## 0.2.2 - 2025-11-14
+
+### Changed
+- Removed unused `auto_configure` config option
+- Clarified `claim_url_var` documentation to specify it only affects the default connection
+
 ## 0.2.1 - 2025-11-14
 
 ### Fixed
