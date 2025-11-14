@@ -12,7 +12,8 @@ class CreateDatabaseCommand extends Command
     protected $signature = 'instagres:create
                             {--set-default : Set this database as the default Laravel database connection}
                             {--url : Use DATABASE_URL instead of DB_* variables (when using --set-default)}
-                            {--save-as= : Save connection string with a custom prefix (e.g., "STAGING" creates STAGING_CONNECTION_STRING)}';
+                            {--save-as= : Save connection string with a custom prefix (e.g., "STAGING" creates STAGING_CONNECTION_STRING)}
+                            {--force : Skip confirmation prompt when modifying .env}';
 
     protected $description = 'Create a new instant Neon PostgreSQL database';
 
@@ -30,6 +31,15 @@ class CreateDatabaseCommand extends Command
 
             // Save to .env if requested
             if ($this->option('set-default') || $this->option('save-as')) {
+                // Ask for confirmation unless --force is used
+                if (! $this->option('force')) {
+                    if (! $this->confirm('This will modify your .env file (a backup will be created). Continue?', true)) {
+                        $this->info('Operation cancelled.');
+
+                        return self::SUCCESS;
+                    }
+                }
+
                 $this->saveDatabaseToEnv($database, $envManager);
             } else {
                 $this->newLine();
@@ -41,6 +51,8 @@ class CreateDatabaseCommand extends Command
 
         } catch (InstagresException $e) {
             $this->error('Failed to create database: '.$e->getMessage());
+            $this->newLine();
+            $this->comment('Please check your network connection and try again.');
 
             return self::FAILURE;
         }
@@ -94,6 +106,13 @@ class CreateDatabaseCommand extends Command
                 // Parse connection string to set individual DB_* variables (Laravel default)
                 $parsed = Instagres::parseConnection($database['connection_string']);
 
+                // Validate parsed data
+                if (empty($parsed['host']) || empty($parsed['database']) || empty($parsed['user'])) {
+                    $this->error('Failed to parse connection string properly.');
+
+                    return;
+                }
+
                 $variables['DB_CONNECTION'] = 'pgsql';
                 $variables['DB_HOST'] = $parsed['host'];
                 $variables['DB_PORT'] = $parsed['port'];
@@ -123,13 +142,20 @@ class CreateDatabaseCommand extends Command
         $this->line("  • Set {$claimUrlKey}");
 
         // Create backup and save
-        if ($envManager->setMultiple($variables, true)) {
+        try {
+            if ($envManager->setMultiple($variables, true)) {
+                $this->newLine();
+                $this->components->success('.env file updated successfully!');
+                $this->comment('  (A backup was saved to .env.backup)');
+            } else {
+                $this->newLine();
+                $this->components->error('Failed to update .env file');
+                $this->comment('  Please check file permissions and try again.');
+            }
+        } catch (\Exception $e) {
             $this->newLine();
-            $this->components->success('.env file updated successfully!');
-            $this->comment('  (A backup was saved to .env.backup)');
-        } else {
-            $this->newLine();
-            $this->components->error('Failed to update .env file');
+            $this->components->error('Failed to update .env file: '.$e->getMessage());
+            $this->comment('  Please check file permissions and try again.');
         }
     }
 }

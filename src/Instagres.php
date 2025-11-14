@@ -25,7 +25,7 @@ class Instagres
      */
     public function create(?string $referrer = null, ?string $dbId = null): array
     {
-        $referrer = $referrer ?? $this->config['referrer'] ?? 'laravel-instagres';
+        $referrer = $referrer ?? data_get($this->config, 'referrer', 'laravel-instagres');
 
         return Client::createClaimableDatabase($referrer, $dbId);
     }

@@ -50,6 +50,8 @@ This will:
 - Display connection details and claim URL
 - Save claim URL for future reference
 
+> **Note:** Without `--set-default` or `--save-as`, the command only displays connection info in your terminal without saving to `.env`.
+
 ### Alternative: Named Connection
 
 Save the database with a custom name for multiple databases:
@@ -62,16 +64,10 @@ This creates `STAGING_CONNECTION_STRING` in your `.env` file.
 
 ### Get Claim URL
 
-Display your stored claim URL (or generate one from a database ID):
+Display your stored claim URL:
 
 ```bash
 php artisan instagres:claim-url
-```
-
-Or generate a claim URL from a specific database ID:
-
-```bash
-php artisan instagres:claim-url --db-id=your-uuid-here
 ```
 
 ## Usage
@@ -114,23 +110,18 @@ php artisan instagres:create --set-default --save-as=backup
 
 #### `instagres:claim-url`
 
-Display your stored claim URL or generate one from a database ID.
+Display the claim URL stored in your `.env` file.
 
 ```bash
-php artisan instagres:claim-url [options]
+php artisan instagres:claim-url
 ```
 
-**Options:**
-- `--db-id=UUID` - Generate claim URL from a specific database ID (reads from `INSTAGRES_CLAIM_URL` in `.env` if not provided)
+This command reads the `INSTAGRES_CLAIM_URL` from your `.env` file (saved when you created the database with `--set-default` or `--save-as`).
 
-**Examples:**
+**Example:**
 
 ```bash
-# Display claim URL from .env
 php artisan instagres:claim-url
-
-# Generate claim URL from a database ID
-php artisan instagres:claim-url --db-id=123e4567-e89b-12d3-a456-426614174000
 ```
 
 ### Facade Usage

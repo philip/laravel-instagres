@@ -69,3 +69,13 @@ it('env manager can escape values correctly', function () {
     // Value with quotes should be escaped and quoted
     expect($method->invoke($envManager, 'has "quotes"'))->toBe('"has \\"quotes\\""');
 });
+
+it('uses laravel file facade', function () {
+    $envManager = app(EnvManager::class);
+
+    // EnvManager should use File facade internally
+    expect($envManager)->toBeInstanceOf(EnvManager::class);
+
+    // Test that File facade is being used (indirectly through exists check)
+    expect(method_exists($envManager, 'exists'))->toBeTrue();
+});

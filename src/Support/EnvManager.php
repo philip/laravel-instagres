@@ -2,6 +2,8 @@
 
 namespace Philip\LaravelInstagres\Support;
 
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 use RuntimeException;
 
 /**
@@ -24,7 +26,7 @@ class EnvManager
      */
     public function exists(): bool
     {
-        return file_exists($this->envPath);
+        return File::exists($this->envPath);
     }
 
     /**
@@ -46,10 +48,10 @@ class EnvManager
             $this->backup();
         }
 
-        $envContent = file_get_contents($this->envPath);
-
-        if ($envContent === false) {
-            throw new RuntimeException("Failed to read .env file at {$this->envPath}");
+        try {
+            $envContent = File::get($this->envPath);
+        } catch (\Exception $e) {
+            throw new RuntimeException("Failed to read .env file at {$this->envPath}: {$e->getMessage()}");
         }
 
         // Escape special characters in value for shell usage
@@ -70,7 +72,13 @@ class EnvManager
             $newContent = rtrim($envContent)."\n{$key}={$escapedValue}\n";
         }
 
-        return file_put_contents($this->envPath, $newContent) !== false;
+        try {
+            File::put($this->envPath, $newContent);
+
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
     /**
@@ -111,9 +119,9 @@ class EnvManager
             return null;
         }
 
-        $envContent = file_get_contents($this->envPath);
-
-        if ($envContent === false) {
+        try {
+            $envContent = File::get($this->envPath);
+        } catch (\Exception $e) {
             return null;
         }
 
@@ -140,7 +148,13 @@ class EnvManager
             $content .= "{$key}={$this->escapeValue($value)}\n";
         }
 
-        return file_put_contents($this->envPath, $content) !== false;
+        try {
+            File::put($this->envPath, $content);
+
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
     /**
@@ -156,7 +170,13 @@ class EnvManager
 
         $backupPath = $this->envPath.'.backup';
 
-        return copy($this->envPath, $backupPath);
+        try {
+            File::copy($this->envPath, $backupPath);
+
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
     /**
@@ -170,7 +190,7 @@ class EnvManager
         // If value contains spaces or special characters, wrap in quotes
         if (preg_match('/[\s#"]/', $value)) {
             // Escape existing quotes
-            $value = str_replace('"', '\\"', $value);
+            $value = Str::replace('"', '\\"', $value);
 
             return "\"{$value}\"";
         }
@@ -192,7 +212,7 @@ class EnvManager
         if (preg_match('/^"(.*)"$/', $value, $matches)) {
             $value = $matches[1];
             // Unescape quotes
-            $value = str_replace('\\"', '"', $value);
+            $value = Str::replace('\\"', '"', $value);
         }
 
         return $value;
