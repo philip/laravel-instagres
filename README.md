@@ -84,10 +84,11 @@ php artisan instagres:create [options]
 
 **Options:**
 - `--set-default` - Set this database as the default Laravel database connection
-- `--url` - Use `DATABASE_URL` instead of individual `DB_*` variables (only with `--set-default`)
-- `--save-as=NAME` - Save connection with a custom prefix (e.g., `STAGING` creates `STAGING_CONNECTION_STRING`)
+- `--url` - Use `DB_URL` instead of individual `DB_*` variables (only with `--set-default`)
+- `--save-as=NAME` - Save connection with a custom prefix (e.g., `STAGING` creates `STAGING_CONNECTION_STRING` and `STAGING_CLAIM_URL`)
+- `--force` - Skip confirmation prompt when modifying .env
 
-> **Note:** By default, `--set-default` uses Laravel's standard `DB_CONNECTION`, `DB_HOST`, `DB_PORT`, etc. variables. Add `--url` to use `DATABASE_URL` instead (common in production/Heroku/Forge environments).
+> **Note:** By default, `--set-default` uses Laravel's standard `DB_CONNECTION`, `DB_HOST`, `DB_PORT`, etc. variables. Add `--url` to use `DB_CONNECTION=pgsql` and `DB_URL` instead (works with Laravel's default config).
 
 **Examples:**
 
@@ -98,7 +99,7 @@ php artisan instagres:create
 # Create and set as default connection (using DB_* variables)
 php artisan instagres:create --set-default
 
-# Create and set as default using DATABASE_URL
+# Create and set as default using DB_URL
 php artisan instagres:create --set-default --url
 
 # Create and save as named connection
@@ -110,18 +111,39 @@ php artisan instagres:create --set-default --save-as=backup
 
 #### `instagres:claim-url`
 
-Display the claim URL stored in your `.env` file.
+Display claim URLs for your Instagres databases.
 
 ```bash
-php artisan instagres:claim-url
+php artisan instagres:claim-url [options]
 ```
 
-This command reads the `INSTAGRES_CLAIM_URL` from your `.env` file (saved when you created the database with `--set-default` or `--save-as`).
+**Options:**
+- `--name=NAME` - Show claim URL for a specific connection (e.g., `--name=staging` shows `STAGING_CLAIM_URL`)
 
-**Example:**
+**Default Behavior:**
+By default, the command displays all claim URLs found in your `.env` file in a table format.
+
+**Examples:**
 
 ```bash
+# Show all claim URLs
 php artisan instagres:claim-url
+
+# Show default claim URL
+php artisan instagres:claim-url --name=default
+
+# Show claim URL for a specific named connection
+php artisan instagres:claim-url --name=staging
+php artisan instagres:claim-url --name=production
+```
+
+**Example Output:**
+
+```
+Connection    Claim URL
+Default       https://neon.new/database/abc-123...
+Staging       https://neon.new/database/def-456...
+Production    https://neon.new/database/ghi-789...
 ```
 
 ### Facade Usage
@@ -200,29 +222,32 @@ DB_PORT=5432
 DB_DATABASE=neondb
 DB_USERNAME=username
 DB_PASSWORD=password
+
+# Claim URL (saved when using --set-default)
+INSTAGRES_CLAIM_URL=https://neon.new/database/123e4567-e89b-12d3-a456-426614174000
 ```
 
 **Using `--set-default --url`:**
 ```env
-DATABASE_URL=postgresql://user:pass@host:5432/db?sslmode=require
-```
+DB_CONNECTION=pgsql
+DB_URL=postgresql://user:pass@host:5432/db?sslmode=require
 
-**Always saved:**
-```env
-# Claim URL (saved with any option)
+# Claim URL (saved when using --set-default)
 INSTAGRES_CLAIM_URL=https://neon.new/database/123e4567-e89b-12d3-a456-426614174000
 ```
 
 **Using `--save-as=staging`:**
 ```env
-# Named connection
+# Named connection (each named connection gets its own claim URL)
 STAGING_CONNECTION_STRING=postgresql://user:pass@host/db?sslmode=require
+STAGING_CLAIM_URL=https://neon.new/database/123e4567-e89b-12d3-a456-426614174000
 ```
 
 **Note:** 
-- **DB_* variables** (default) work great for local development
-- **DATABASE_URL** is preferred in production environments (Heroku, Forge, etc.)
-- The claim URL variable name can be customized in `config/instagres.php`
+- **DB_* variables** (default) work great for local development and provide granular control
+- **DB_URL** works with Laravel's default `config/database.php` for PostgreSQL connections
+- Named connections automatically get their own claim URL with the same prefix (e.g., `STAGING_CLAIM_URL`)
+- The default claim URL variable name can be customized in `config/instagres.php`
 
 ## Common Workflows
 

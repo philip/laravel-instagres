@@ -2,6 +2,19 @@
 
 All notable changes to `laravel-instagres` will be documented in this file.
 
+## 0.2.1 - 2025-11-14
+
+### Fixed
+- **BREAKING**: `--url` flag now correctly sets `DB_CONNECTION=pgsql` and uses `DB_URL` instead of `DATABASE_URL` to work with Laravel's default config
+- Named connections (`--save-as`) now store their own claim URLs (e.g., `STAGING_CLAIM_URL`) instead of overwriting the default `INSTAGRES_CLAIM_URL`
+
+### Changed
+- When using both `--set-default` and `--save-as`, both the default claim URL and prefixed claim URL are now saved
+- `instagres:claim-url` now displays all claim URLs in a table format by default (instead of only showing the default one)
+
+### Added
+- `--name` option to `instagres:claim-url` command to show a specific connection's claim URL (use `--name=default` for the default connection, or any custom name for named connections)
+
 ## 0.2.0 - 2025-11-14
 
 ### Changed

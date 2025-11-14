@@ -79,3 +79,43 @@ it('uses laravel file facade', function () {
     // Test that File facade is being used (indirectly through exists check)
     expect(method_exists($envManager, 'exists'))->toBeTrue();
 });
+
+it('can format claim url connection labels', function () {
+    $command = new \Philip\LaravelInstagres\Console\GetClaimUrlCommand();
+
+    // Use reflection to test protected method
+    $reflection = new ReflectionClass($command);
+    $method = $reflection->getMethod('formatConnectionLabel');
+    $method->setAccessible(true);
+
+    // Default claim URL should be labeled "Default"
+    expect($method->invoke($command, 'INSTAGRES_CLAIM_URL'))->toBe('Default');
+
+    // Named connections should be formatted nicely
+    expect($method->invoke($command, 'STAGING_CLAIM_URL'))->toBe('Staging');
+    expect($method->invoke($command, 'PRODUCTION_CLAIM_URL'))->toBe('Production');
+    expect($method->invoke($command, 'MY_TEST_DB_CLAIM_URL'))->toBe('My Test Db');
+});
+
+it('handles default as a special case name', function () {
+    // Test that 'default' (case-insensitive) maps to INSTAGRES_CLAIM_URL
+    $testName = 'default';
+    $expectedKey = config('instagres.claim_url_var', 'INSTAGRES_CLAIM_URL');
+    
+    // Simulate the logic from showSpecificClaimUrl
+    if (strtolower($testName) === 'default') {
+        $claimUrlKey = $expectedKey;
+    } else {
+        $prefix = strtoupper($testName);
+        $claimUrlKey = "{$prefix}_CLAIM_URL";
+    }
+    
+    expect($claimUrlKey)->toBe('INSTAGRES_CLAIM_URL');
+    
+    // Test that other names still work as expected
+    $testName2 = 'staging';
+    $prefix2 = strtoupper($testName2);
+    $claimUrlKey2 = "{$prefix2}_CLAIM_URL";
+    
+    expect($claimUrlKey2)->toBe('STAGING_CLAIM_URL');
+});

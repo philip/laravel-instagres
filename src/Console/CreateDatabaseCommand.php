@@ -11,7 +11,7 @@ class CreateDatabaseCommand extends Command
 {
     protected $signature = 'instagres:create
                             {--set-default : Set this database as the default Laravel database connection}
-                            {--url : Use DATABASE_URL instead of DB_* variables (when using --set-default)}
+                            {--url : Use DB_URL instead of DB_* variables (when using --set-default)}
                             {--save-as= : Save connection string with a custom prefix (e.g., "STAGING" creates STAGING_CONNECTION_STRING)}
                             {--force : Skip confirmation prompt when modifying .env}';
 
@@ -99,9 +99,11 @@ class CreateDatabaseCommand extends Command
         // Determine which variables to set based on options
         if ($this->option('set-default')) {
             if ($this->option('url')) {
-                // Use DATABASE_URL (common in production/Heroku/Forge)
-                $variables['DATABASE_URL'] = $database['connection_string'];
-                $this->line('  • Set DATABASE_URL');
+                // Use DB_URL (Laravel's default pgsql connection config uses DB_URL)
+                $variables['DB_CONNECTION'] = 'pgsql';
+                $variables['DB_URL'] = $database['connection_string'];
+                $this->line('  • Set DB_CONNECTION=pgsql');
+                $this->line('  • Set DB_URL');
             } else {
                 // Parse connection string to set individual DB_* variables (Laravel default)
                 $parsed = Instagres::parseConnection($database['connection_string']);
@@ -132,14 +134,17 @@ class CreateDatabaseCommand extends Command
         if ($saveAs = $this->option('save-as')) {
             $prefix = strtoupper($saveAs);
             $variables["{$prefix}_CONNECTION_STRING"] = $database['connection_string'];
+            $variables["{$prefix}_CLAIM_URL"] = $database['claim_url'];
             $this->line("  • Set {$prefix}_CONNECTION_STRING");
+            $this->line("  • Set {$prefix}_CLAIM_URL");
         }
 
-        // Always save the claim URL for reference
-        $claimUrlKey = config('instagres.claim_url_var', 'INSTAGRES_CLAIM_URL');
-
-        $variables[$claimUrlKey] = $database['claim_url'];
-        $this->line("  • Set {$claimUrlKey}");
+        // Save the default claim URL when using --set-default
+        if ($this->option('set-default')) {
+            $claimUrlKey = config('instagres.claim_url_var', 'INSTAGRES_CLAIM_URL');
+            $variables[$claimUrlKey] = $database['claim_url'];
+            $this->line("  • Set {$claimUrlKey}");
+        }
 
         // Create backup and save
         try {
