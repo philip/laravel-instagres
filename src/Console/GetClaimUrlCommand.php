@@ -11,7 +11,7 @@ class GetClaimUrlCommand extends Command
     protected $signature = 'instagres:claim-url
                             {--name= : Show claim URL for a specific named connection (e.g., "staging" for STAGING_CLAIM_URL)}';
 
-    protected $description = 'Display claim URLs for your Instagres databases';
+    protected $description = 'Display Claimable Postgres claim URLs stored in your .env';
 
     public function handle(EnvManager $envManager): int
     {
@@ -85,7 +85,7 @@ class GetClaimUrlCommand extends Command
             return self::FAILURE;
         }
 
-        $this->components->info('Instagres Claim URLs');
+        $this->components->info('Claimable Postgres claim URLs');
         $this->newLine();
 
         // Display in a nice table format

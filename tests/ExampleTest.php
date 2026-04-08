@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Contracts\Console\Kernel;
+use Philip\LaravelInstagres\Console\GetClaimUrlCommand;
 use Philip\LaravelInstagres\Facades\Instagres;
 use Philip\LaravelInstagres\Support\EnvManager;
 
@@ -20,7 +22,7 @@ it('can get claim url for a database id', function () {
 
     expect($claimUrl)->toBeString();
     expect($claimUrl)->toContain($dbId);
-    expect($claimUrl)->toStartWith('https://neon.new/database/');
+    expect($claimUrl)->toStartWith('https://neon.new/claim/');
 });
 
 it('can parse a connection string', function () {
@@ -40,7 +42,7 @@ it('can parse a connection string', function () {
 });
 
 it('registers commands', function () {
-    $commands = $this->app[\Illuminate\Contracts\Console\Kernel::class]->all();
+    $commands = $this->app[Kernel::class]->all();
 
     expect($commands)->toHaveKey('instagres:create');
     expect($commands)->toHaveKey('instagres:claim-url');
@@ -81,7 +83,7 @@ it('uses laravel file facade', function () {
 });
 
 it('can format claim url connection labels', function () {
-    $command = new \Philip\LaravelInstagres\Console\GetClaimUrlCommand;
+    $command = new GetClaimUrlCommand;
 
     // Use reflection to test protected method
     $reflection = new ReflectionClass($command);
