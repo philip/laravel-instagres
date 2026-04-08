@@ -2,6 +2,31 @@
 
 All notable changes to `laravel-instagres` will be documented in this file.
 
+## 0.3.0 - 2026-04-08
+
+### Breaking
+
+- **`Instagres::create()`** now matches **`philip/instagres` ^0.2**: signature is **`create(?string $ref = null, ?bool $logicalReplication = null)`**. The old second argument **`$dbId`** is removed (the API assigns database ids).
+- Claim URLs use **`https://neon.new/claim/{id}`** (Claimable Postgres). Values already stored in `.env` remain valid URLs.
+
+### Added
+
+- Dependency **`philip/instagres`: `^0.2`** (Claimable Postgres API).
+- Config **`ref`** / env **`INSTAGRES_REF`** (optional); effective API ref is non-empty **`ref`**, then **`referrer`** / **`INSTAGRES_REFERRER`**.
+- Config **`logical_replication`** / env **`INSTAGRES_LOGICAL_REPLICATION`**; Artisan **`--logical-replication`** ORs with config for a single run.
+- **`instagres:create --direct-url`**: with **`--set-default`**, write **`direct_connection_string`** to **`DB_URL`** or parsed **`DB_*`** (default remains pooled **`connection_string`**). Without **`--set-default`**, the flag is ignored with a warning (named **`--save-as`** connections still store the pooled URL).
+- Tests for **`--direct-url`** and missing direct string handling.
+- **Laravel 13** support: **`illuminate/contracts` ^13.0** (new apps default to Laravel 13).
+- **CI** runs tests on **Laravel 10** (Orchestra Testbench 8) as well as 11–13.
+
+### Changed
+
+- **`instagres:create`** avoids the Laravel 11+ console **`Success`** component on **Laravel 10** (falls back to **`info`**), so output works on all supported versions.
+- **`instagres:create`** output includes database **`id`**, pooled and direct connection strings, and notes which URL **`--set-default`** would apply.
+- Command description documents using **`--force`** in CI when updating `.env`.
+- **`instagres:claim-url`** copy and **`composer.json`** metadata align with **Neon Claimable Postgres** naming.
+- Root **`minimum-stability`** is now **`stable`** (with **`prefer-stable`** unchanged).
+
 ## 0.2.2 - 2025-11-14
 
 ### Changed

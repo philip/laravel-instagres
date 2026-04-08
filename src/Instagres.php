@@ -17,17 +17,50 @@ class Instagres
     }
 
     /**
-     * Create a new claimable Instagres database
+     * Create a new claimable Neon database (Claimable Postgres API).
      *
-     * @param  string|null  $referrer  Optional referrer (uses config default if not provided)
-     * @param  string|null  $dbId  Optional database ID (auto-generated if not provided)
-     * @return array{connection_string: string, claim_url: string, expires_at: string}
+     * @param  string|null  $ref  Optional API ref; when empty, uses config "ref" then "referrer"
+     * @param  bool|null  $logicalReplication  When null, uses config logical_replication; otherwise this value is sent to the API
+     * @return array{
+     *     id: string,
+     *     status: string,
+     *     neon_project_id: string,
+     *     connection_string: string,
+     *     pooled_connection_string: string,
+     *     direct_connection_string: string,
+     *     claim_url: string,
+     *     expires_at: string,
+     *     created_at?: string,
+     *     updated_at?: string
+     * }
+     *
+     * Note: connection_string is the pooled URL (same as pooled_connection_string from the API).
      */
-    public function create(?string $referrer = null, ?string $dbId = null): array
+    public function create(?string $ref = null, ?bool $logicalReplication = null): array
     {
-        $referrer = $referrer ?? data_get($this->config, 'referrer', 'laravel-instagres');
+        $effectiveRef = $this->resolveRef($ref);
+        $enableLogicalReplication = $logicalReplication !== null
+            ? $logicalReplication
+            : (bool) data_get($this->config, 'logical_replication', false);
 
-        return Client::createClaimableDatabase($referrer, $dbId);
+        return Client::createClaimableDatabase($effectiveRef, $enableLogicalReplication);
+    }
+
+    /**
+     * Resolve API ref: argument wins, then non-empty config ref, then referrer.
+     */
+    protected function resolveRef(?string $ref): string
+    {
+        if (is_string($ref) && $ref !== '') {
+            return $ref;
+        }
+
+        $configRef = data_get($this->config, 'ref');
+        if (is_string($configRef) && $configRef !== '') {
+            return $configRef;
+        }
+
+        return (string) data_get($this->config, 'referrer', 'laravel-instagres');
     }
 
     /**
